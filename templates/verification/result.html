@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Verification Result | CertifyCloud{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card card-custom verification-card border-secondary text-center shadow-lg">
+        
+        {% if status == 'VALID' %}
+            <div class="status-icon valid">
+                <i class="bi bi-patch-check-fill"></i>
+            </div>
+            <h2 class="text-success fw-bold mb-1">CERTIFICATE VERIFIED</h2>
+            <p class="text-muted mb-4">Official Verification Record Validated by Cloud Database</p>
+
+            <div class="p-3 bg-dark rounded border border-success text-start mb-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Certificate ID</small>
+                        <strong class="text-warning fs-5">{{ certificate.certificate_id }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Status</small>
+                        <span class="badge badge-valid">VALID</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Student Name</small>
+                        <strong class="text-light fs-6">{{ certificate.student.full_name }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Certificate Title</small>
+                        <strong class="text-light fs-6">{{ certificate.certificate_title }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Course / Program</small>
+                        <span class="text-light">{{ certificate.course_name }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Issue Date</small>
+                        <span class="text-light">{{ certificate.issue_date|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="col-12">
+                        <small class="text-muted d-block">Issuing Organization</small>
+                        <span class="text-light fw-medium">{{ certificate.issued_by }}</span>
+                    </div>
+                </div>
+            </div>
+
+        {% elif status == 'REVOKED' %}
+            <div class="status-icon revoked">
+                <i class="bi bi-x-octagon-fill"></i>
+            </div>
+            <h2 class="text-danger fw-bold mb-1">CERTIFICATE REVOKED</h2>
+            <p class="text-muted mb-4">This certificate was previously issued but has been officially revoked by the issuing authority.</p>
+
+            <div class="p-3 bg-dark rounded border border-danger text-start mb-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Certificate ID</small>
+                        <strong class="text-warning fs-5">{{ certificate.certificate_id }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Status</small>
+                        <span class="badge badge-revoked">REVOKED</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Student Name</small>
+                        <strong class="text-light fs-6">{{ certificate.student.full_name }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Certificate Title</small>
+                        <strong class="text-light fs-6">{{ certificate.certificate_title }}</strong>
+                    </div>
+                </div>
+            </div>
+
+        {% elif status == 'EXPIRED' %}
+            <div class="status-icon not-found">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h2 class="text-warning fw-bold mb-1">CERTIFICATE EXPIRED</h2>
+            <p class="text-muted mb-4">This certificate reached its expiration date and is no longer active.</p>
+
+            <div class="p-3 bg-dark rounded border border-warning text-start mb-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Certificate ID</small>
+                        <strong class="text-warning fs-5">{{ certificate.certificate_id }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Status</small>
+                        <span class="badge badge-expired">EXPIRED</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Expiry Date</small>
+                        <strong class="text-light fs-6">{{ certificate.expiry_date|date:"F d, Y" }}</strong>
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            <div class="status-icon not-found">
+                <i class="bi bi-question-circle-fill"></i>
+            </div>
+            <h2 class="text-warning fw-bold mb-1">CERTIFICATE NOT FOUND</h2>
+            <p class="text-muted mb-4">The certificate ID <strong class="text-warning">'{{ searched_id }}'</strong> does not exist in our cloud record database.</p>
+            
+            <div class="alert alert-warning card-custom text-light border-warning text-start">
+                <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>
+                Please check the Certificate ID for spelling errors or contact the issuing institution.
+            </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'verify_public' %}" class="btn btn-gold px-4">
+                <i class="bi bi-search me-1"></i> Verify Another Certificate
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-gold px-4">
+                <i class="bi bi-house-door me-1"></i> Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

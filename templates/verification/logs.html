@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Verification Logs | CertifyCloud{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom border-secondary">
+        <div>
+            <h3 class="text-warning fw-bold mb-1">
+                <i class="bi bi-journal-text me-2"></i> System Verification Audit Logs
+            </h3>
+            <p class="text-muted mb-0">Audit history of public and administrative certificate verification requests.</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-gold btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Admin Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Backend Search & Status Filter Form -->
+    <div class="card card-custom p-3 mb-4">
+        <form method="get" action="{% url 'verification_logs' %}" class="row g-2">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" value="{{ query }}" class="form-control form-control-custom" placeholder="Search by Certificate ID or Client IP address...">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select form-select-custom">
+                    <option value="">-- All Statuses --</option>
+                    <option value="VALID" {% if status_filter == 'VALID' %}selected{% endif %}>VALID</option>
+                    <option value="REVOKED" {% if status_filter == 'REVOKED' %}selected{% endif %}>REVOKED</option>
+                    <option value="EXPIRED" {% if status_filter == 'EXPIRED' %}selected{% endif %}>EXPIRED</option>
+                    <option value="NOT_FOUND" {% if status_filter == 'NOT_FOUND' %}selected{% endif %}>NOT_FOUND</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-gold flex-fill">Filter</button>
+                {% if query or status_filter %}
+                    <a href="{% url 'verification_logs' %}" class="btn btn-outline-gold">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="card card-custom">
+        <div class="table-responsive p-3">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Searched Cert ID</th>
+                        <th>Status Result</th>
+                        <th>Client IP Address</th>
+                        <th>Browser / User Agent</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in page_obj %}
+                        <tr>
+                            <td class="small text-muted">{{ log.verified_at|date:"Y-m-d H:i:s" }}</td>
+                            <td class="fw-bold text-warning">{{ log.searched_certificate_id }}</td>
+                            <td>
+                                {% if log.verification_status == 'VALID' %}
+                                    <span class="badge badge-valid">VALID</span>
+                                {% elif log.verification_status == 'REVOKED' %}
+                                    <span class="badge badge-revoked">REVOKED</span>
+                                {% elif log.verification_status == 'NOT_FOUND' %}
+                                    <span class="badge badge-expired">NOT FOUND</span>
+                                {% else %}
+                                    <span class="badge badge-expired">EXPIRED</span>
+                                {% endif %}
+                            </td>
+                            <td class="small text-light">{{ log.ip_address|default:"127.0.0.1" }}</td>
+                            <td class="small text-muted text-truncate" style="max-width: 220px;" title="{{ log.user_agent }}">{{ log.user_agent }}</td>
+                            <td>
+                                {% if log.certificate %}
+                                    <a href="{% url 'certificate_detail' log.certificate.pk %}" class="btn btn-outline-gold btn-sm py-0 px-2">View Cert</a>
+                                {% else %}
+                                    <span class="text-muted small">N/A</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No verification logs recorded.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="card-footer bg-transparent border-top border-secondary p-3">
+                <nav>
+                    <ul class="pagination pagination-custom justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item"><a class="page-link text-warning bg-dark border-secondary" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&status={{ status_filter }}">&laquo; Prev</a></li>
+                        {% endif %}
+                        <li class="page-item disabled"><span class="page-link text-light bg-dark border-secondary">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+                        {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link text-warning bg-dark border-secondary" href="?page={{ page_obj.next_page_number }}&q={{ query }}&status={{ status_filter }}">Next &raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

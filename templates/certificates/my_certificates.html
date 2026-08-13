@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}My Certificates | CertifyCloud{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
+        <h3 class="text-warning fw-bold mb-0">
+            <i class="bi bi-award me-2"></i> My Issued Certificates
+        </h3>
+        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-gold btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {% for cert in certificates %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card card-custom h-100 p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="fw-bold text-warning fs-5">{{ cert.certificate_id }}</span>
+                        {% if cert.status == 'VALID' %}
+                            <span class="badge badge-valid">VALID</span>
+                        {% elif cert.status == 'REVOKED' %}
+                            <span class="badge badge-revoked">REVOKED</span>
+                        {% else %}
+                            <span class="badge badge-expired">EXPIRED</span>
+                        {% endif %}
+                    </div>
+                    
+                    <h5 class="text-light fw-bold mb-2">{{ cert.certificate_title }}</h5>
+                    <p class="small text-muted mb-2">Course: <strong class="text-light">{{ cert.course_name }}</strong></p>
+                    <p class="small text-muted mb-3">Issue Date: {{ cert.issue_date|date:"F d, Y" }}</p>
+
+                    {% if cert.qr_code %}
+                        <div class="text-center my-3 bg-white p-2 rounded d-inline-block mx-auto">
+                            <img src="{{ cert.qr_code.url }}" alt="QR Code" style="max-height: 120px;" class="img-fluid">
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-auto pt-3 border-top border-secondary d-flex gap-2">
+                        <a href="{% url 'certificate_detail' cert.pk %}" class="btn btn-outline-gold btn-sm flex-fill">
+                            <i class="bi bi-eye me-1"></i> View Details
+                        </a>
+                        {% if cert.certificate_file %}
+                            <a href="{% url 'certificate_download' cert.pk %}" class="btn btn-gold btn-sm flex-fill">
+                                <i class="bi bi-download me-1"></i> Download File
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="card card-custom p-5">
+                    <i class="bi bi-award fs-1 text-muted mb-3"></i>
+                    <h4 class="text-light">No Certificates Found</h4>
+                    <p class="text-muted">You do not have any certificates assigned to your account.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

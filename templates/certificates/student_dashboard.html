@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard | CertifyCloud{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Header -->
+    <div class="card card-custom p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h3 class="text-warning fw-bold mb-1">
+                    Welcome back, {{ student.full_name }}!
+                </h3>
+                <p class="text-muted mb-0">
+                    Register Number: <strong class="text-light">{{ student.register_number }}</strong> | 
+                    Department: <strong class="text-light">{{ student.department }}</strong> |
+                    Year: <strong class="text-light">{{ student.year }}</strong>
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'my_certificates' %}" class="btn btn-gold">
+                    <i class="bi bi-award me-1"></i> View All My Certificates
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="stats-card">
+                <div class="stats-number">{{ total_certificates }}</div>
+                <div class="stats-label"><i class="bi bi-file-earmark-check me-1"></i> Total Issued Certificates</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stats-card border-success">
+                <div class="stats-number text-success">{{ valid_certificates }}</div>
+                <div class="stats-label text-success"><i class="bi bi-shield-check me-1"></i> Active Valid Certificates</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certificates Table -->
+    <div class="card card-custom">
+        <div class="card-header card-header-custom p-3 d-flex justify-content-between align-items-center">
+            <span class="fw-bold"><i class="bi bi-award me-2"></i> My Recent Certificates</span>
+            <a href="{% url 'my_certificates' %}" class="btn btn-outline-gold btn-sm">View All</a>
+        </div>
+        <div class="table-responsive p-3">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Certificate ID</th>
+                        <th>Title</th>
+                        <th>Course</th>
+                        <th>Issue Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cert in certificates %}
+                        <tr>
+                            <td class="fw-bold text-warning">{{ cert.certificate_id }}</td>
+                            <td>{{ cert.certificate_title }}</td>
+                            <td class="small">{{ cert.course_name }}</td>
+                            <td class="small">{{ cert.issue_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if cert.status == 'VALID' %}
+                                    <span class="badge badge-valid">VALID</span>
+                                {% elif cert.status == 'REVOKED' %}
+                                    <span class="badge badge-revoked">REVOKED</span>
+                                {% else %}
+                                    <span class="badge badge-expired">EXPIRED</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'certificate_detail' cert.pk %}" class="btn btn-outline-gold btn-sm py-1 px-2">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                {% if cert.certificate_file %}
+                                    <a href="{% url 'certificate_download' cert.pk %}" class="btn btn-gold btn-sm py-1 px-2 ms-1">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No certificates issued to your account yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

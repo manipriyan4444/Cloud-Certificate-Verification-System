@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home | CertifyCloud - Certificate Verification System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-7 text-lg-start text-center mb-4 mb-lg-0">
+                <span class="badge badge-valid mb-3 fs-6">
+                    <i class="bi bi-cloud-check me-1"></i> AWS Cloud Integrated System
+                </span>
+                <h1 class="hero-title">Instant & Tamper-Proof Certificate Verification</h1>
+                <p class="hero-subtitle">
+                    Verify academic and professional certificates effortlessly using unique QR Codes and Cloud-backed storage technology.
+                </p>
+                <div class="d-flex flex-column flex-sm-row justify-content-lg-start justify-content-center gap-3">
+                    <a href="{% url 'verify_public' %}" class="btn btn-gold btn-lg">
+                        <i class="bi bi-qr-code-scan me-2"></i> Verify a Certificate Now
+                    </a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-gold btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i> Portal Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="card card-custom p-4 text-center border-warning">
+                    <h4 class="text-warning mb-3">
+                        <i class="bi bi-search me-2"></i> Quick Verification
+                    </h4>
+                    <p class="text-muted small">Enter the Certificate ID printed on your document</p>
+                    <form action="{% url 'verify_public' %}" method="get">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text bg-dark border-secondary text-warning">
+                                <i class="bi bi-ticket-perforated"></i>
+                            </span>
+                            <input type="text" name="certificate_id" class="form-control form-control-custom text-uppercase" placeholder="e.g. CERT-2026-00001" required>
+                        </div>
+                        <button type="submit" class="btn btn-gold w-100">
+                            <i class="bi bi-shield-check me-2"></i> Verify Authenticity
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="text-warning fw-bold">Platform Architecture & Highlights</h2>
+        <p class="text-muted">Built with Python, Django, AWS S3 Storage and dynamic QR Code generation.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card card-custom h-100 p-4 text-center">
+                <div class="fs-1 text-warning mb-3">
+                    <i class="bi bi-qr-code"></i>
+                </div>
+                <h5 class="text-light">Unique QR Code Token</h5>
+                <p class="text-muted small">Every issued certificate contains an encrypted, automatically generated QR code linking directly to its public verification URL.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-custom h-100 p-4 text-center">
+                <div class="fs-1 text-warning mb-3">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                </div>
+                <h5 class="text-light">Cloud File Storage</h5>
+                <p class="text-muted small">Documents and QR images are securely stored in AWS S3 buckets, ensuring high availability, scalability, and instant downloads.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-custom h-100 p-4 text-center">
+                <div class="fs-1 text-warning mb-3">
+                    <i class="bi bi-file-earmark-lock"></i>
+                </div>
+                <h5 class="text-light">Audit & Verification Logs</h5>
+                <p class="text-muted small">All verification requests are recorded with timestamp, status, and IP address for fraud detection and audit readiness.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

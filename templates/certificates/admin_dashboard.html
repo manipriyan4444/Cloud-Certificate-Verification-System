@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard | CertifyCloud{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-secondary">
+        <div>
+            <h2 class="text-warning fw-bold mb-1">
+                <i class="bi bi-speedometer2 me-2"></i> Administrator Dashboard
+            </h2>
+            <p class="text-muted mb-0">Overview of institutional certificate records, verification logs, and student registry.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a href="{% url 'student_create' %}" class="btn btn-outline-gold btn-sm">
+                <i class="bi bi-person-plus me-1"></i> Add Student
+            </a>
+            <a href="{% url 'certificate_create' %}" class="btn btn-gold btn-sm">
+                <i class="bi bi-plus-circle me-1"></i> Create Certificate
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stats-card">
+                <div class="stats-number">{{ total_students }}</div>
+                <div class="stats-label"><i class="bi bi-people me-1"></i> Students</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stats-card">
+                <div class="stats-number">{{ total_certificates }}</div>
+                <div class="stats-label"><i class="bi bi-award me-1"></i> Total Certs</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stats-card border-success">
+                <div class="stats-number text-success">{{ valid_certificates }}</div>
+                <div class="stats-label text-success"><i class="bi bi-check-circle me-1"></i> Valid</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stats-card border-danger">
+                <div class="stats-number text-danger">{{ revoked_certificates }}</div>
+                <div class="stats-label text-danger"><i class="bi bi-slash-circle me-1"></i> Revoked</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stats-card border-warning">
+                <div class="stats-number text-warning">{{ expired_certificates }}</div>
+                <div class="stats-label text-warning"><i class="bi bi-clock-history me-1"></i> Expired</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stats-card">
+                <div class="stats-number">{{ total_verifications }}</div>
+                <div class="stats-label"><i class="bi bi-shield-check me-1"></i> Verifications</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Action Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <a href="{% url 'student_create' %}" class="card card-custom p-3 text-center text-decoration-none text-light">
+                <div class="fs-2 text-warning mb-2"><i class="bi bi-person-plus-fill"></i></div>
+                <h6 class="fw-bold mb-1">Add Student</h6>
+                <small class="text-muted">Register student credentials</small>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'certificate_create' %}" class="card card-custom p-3 text-center text-decoration-none text-light">
+                <div class="fs-2 text-warning mb-2"><i class="bi bi-file-earmark-plus-fill"></i></div>
+                <h6 class="fw-bold mb-1">Issue Certificate</h6>
+                <small class="text-muted">Generate ID & S3 QR link</small>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'certificate_list' %}" class="card card-custom p-3 text-center text-decoration-none text-light">
+                <div class="fs-2 text-warning mb-2"><i class="bi bi-collection-fill"></i></div>
+                <h6 class="fw-bold mb-1">Manage Certificates</h6>
+                <small class="text-muted">Search, revoke & restore</small>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'verification_logs' %}" class="card card-custom p-3 text-center text-decoration-none text-light">
+                <div class="fs-2 text-warning mb-2"><i class="bi bi-journal-check"></i></div>
+                <h6 class="fw-bold mb-1">Verification Logs</h6>
+                <small class="text-muted">Audit access logs & IP traces</small>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row g-4">
+        <!-- Recent Certificates -->
+        <div class="col-lg-7">
+            <div class="card card-custom">
+                <div class="card-header card-header-custom d-flex justify-content-between align-items-center p-3">
+                    <span class="fw-bold"><i class="bi bi-clock me-2"></i> Recently Created Certificates</span>
+                    <a href="{% url 'certificate_list' %}" class="btn btn-gold btn-sm py-0 px-2 fs-7">View All</a>
+                </div>
+                <div class="table-responsive p-2">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th>Cert ID</th>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cert in recent_certificates %}
+                                <tr>
+                                    <td class="fw-bold text-warning">{{ cert.certificate_id }}</td>
+                                    <td>{{ cert.student.full_name }}</td>
+                                    <td class="small">{{ cert.course_name }}</td>
+                                    <td>
+                                        {% if cert.status == 'VALID' %}
+                                            <span class="badge badge-valid">VALID</span>
+                                        {% elif cert.status == 'REVOKED' %}
+                                            <span class="badge badge-revoked">REVOKED</span>
+                                        {% else %}
+                                            <span class="badge badge-expired">EXPIRED</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'certificate_detail' cert.pk %}" class="btn btn-outline-gold btn-sm py-0 px-2">View</a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">No certificates issued yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Verification Attempts -->
+        <div class="col-lg-5">
+            <div class="card card-custom">
+                <div class="card-header card-header-custom d-flex justify-content-between align-items-center p-3">
+                    <span class="fw-bold"><i class="bi bi-shield-check me-2"></i> Recent Verifications</span>
+                    <a href="{% url 'verification_logs' %}" class="btn btn-gold btn-sm py-0 px-2 fs-7">Logs</a>
+                </div>
+                <div class="table-responsive p-2">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th>Cert ID</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in recent_verifications %}
+                                <tr>
+                                    <td class="fw-bold text-light small">{{ log.searched_certificate_id }}</td>
+                                    <td>
+                                        {% if log.verification_status == 'VALID' %}
+                                            <span class="badge badge-valid py-1 px-2">VALID</span>
+                                        {% elif log.verification_status == 'REVOKED' %}
+                                            <span class="badge badge-revoked py-1 px-2">REVOKED</span>
+                                        {% else %}
+                                            <span class="badge badge-expired py-1 px-2">{{ log.verification_status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="small text-muted">{{ log.verified_at|date:"M d, H:i" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-3">No verification logs recorded.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

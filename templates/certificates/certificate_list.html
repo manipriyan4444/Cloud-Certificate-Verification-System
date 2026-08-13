@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Certificate Management | CertifyCloud{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom border-secondary">
+        <div>
+            <h3 class="text-warning fw-bold mb-1">
+                <i class="bi bi-award me-2"></i> Certificate Management
+            </h3>
+            <p class="text-muted mb-0">Search, filter, inspect, revoke, or restore institutional certificates.</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="{% url 'certificate_create' %}" class="btn btn-gold">
+                <i class="bi bi-plus-circle me-1"></i> Issue New Certificate
+            </a>
+        </div>
+    </div>
+
+    <!-- Backend Search & Status Filter Form -->
+    <div class="card card-custom p-3 mb-4">
+        <form method="get" action="{% url 'certificate_list' %}" class="row g-2">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-warning"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" value="{{ query }}" class="form-control form-control-custom" placeholder="Search by Certificate ID, Student Name, Reg No, or Course...">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select form-select-custom">
+                    <option value="">-- All Statuses --</option>
+                    <option value="VALID" {% if status_filter == 'VALID' %}selected{% endif %}>VALID</option>
+                    <option value="REVOKED" {% if status_filter == 'REVOKED' %}selected{% endif %}>REVOKED</option>
+                    <option value="EXPIRED" {% if status_filter == 'EXPIRED' %}selected{% endif %}>EXPIRED</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-gold flex-fill">Filter</button>
+                {% if query or status_filter %}
+                    <a href="{% url 'certificate_list' %}" class="btn btn-outline-gold">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Certificate Table -->
+    <div class="card card-custom">
+        <div class="table-responsive p-3">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Cert ID</th>
+                        <th>Student Name</th>
+                        <th>Certificate Title</th>
+                        <th>Course</th>
+                        <th>Issue Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cert in page_obj %}
+                        <tr>
+                            <td class="fw-bold text-warning">{{ cert.certificate_id }}</td>
+                            <td>
+                                <a href="{% url 'student_detail' cert.student.pk %}" class="text-light text-decoration-none hover-warning">
+                                    {{ cert.student.full_name }}
+                                </a>
+                                <div class="small text-muted">{{ cert.student.register_number }}</div>
+                            </td>
+                            <td class="fw-medium text-light">{{ cert.certificate_title }}</td>
+                            <td class="small">{{ cert.course_name }}</td>
+                            <td class="small">{{ cert.issue_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if cert.status == 'VALID' %}
+                                    <span class="badge badge-valid">VALID</span>
+                                {% elif cert.status == 'REVOKED' %}
+                                    <span class="badge badge-revoked">REVOKED</span>
+                                {% else %}
+                                    <span class="badge badge-expired">EXPIRED</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'certificate_detail' cert.pk %}" class="btn btn-outline-gold" title="View Details & QR">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if cert.certificate_file %}
+                                        <a href="{% url 'certificate_download' cert.pk %}" class="btn btn-outline-info" title="Download Document">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if cert.status == 'VALID' %}
+                                        <a href="{% url 'certificate_revoke' cert.pk %}" class="btn btn-outline-danger" title="Revoke Certificate">
+                                            <i class="bi bi-slash-circle"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'certificate_restore' cert.pk %}" class="btn btn-outline-success" title="Restore Certificate">
+                                            <i class="bi bi-check-circle"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No certificates found matching criteria.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="card-footer bg-transparent border-top border-secondary p-3">
+                <nav>
+                    <ul class="pagination pagination-custom justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item"><a class="page-link text-warning bg-dark border-secondary" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&status={{ status_filter }}">&laquo; Prev</a></li>
+                        {% endif %}
+                        <li class="page-item disabled"><span class="page-link text-light bg-dark border-secondary">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+                        {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link text-warning bg-dark border-secondary" href="?page={{ page_obj.next_page_number }}&q={{ query }}&status={{ status_filter }}">Next &raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Issue New Certificate | CertifyCloud{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-8">
+            <div class="card card-custom p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
+                    <div>
+                        <h3 class="text-warning fw-bold mb-1">
+                            <i class="bi bi-file-earmark-plus me-2"></i> Issue New Certificate
+                        </h3>
+                        <p class="text-muted small mb-0">Certificate ID and Cloud QR Code will be automatically generated.</p>
+                    </div>
+                    <a href="{% url 'certificate_list' %}" class="btn btn-outline-gold btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
+                    </a>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-light fw-medium">Select Student <span class="text-danger">*</span></label>
+                            {{ form.student }}
+                            {% if form.student.errors %}<div class="text-danger small mt-1">{{ form.student.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-light fw-medium">Certificate Title <span class="text-danger">*</span></label>
+                            {{ form.certificate_title }}
+                            {% if form.certificate_title.errors %}<div class="text-danger small mt-1">{{ form.certificate_title.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-light fw-medium">Course / Program Name <span class="text-danger">*</span></label>
+                            {{ form.course_name }}
+                            {% if form.course_name.errors %}<div class="text-danger small mt-1">{{ form.course_name.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-light fw-medium">Issue Date <span class="text-danger">*</span></label>
+                            {{ form.issue_date }}
+                            {% if form.issue_date.errors %}<div class="text-danger small mt-1">{{ form.issue_date.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-light fw-medium">Expiry Date (Optional)</label>
+                            {{ form.expiry_date }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-light fw-medium">Issuing Institution / Organization</label>
+                            {{ form.issued_by }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-light fw-medium">Certificate Description</label>
+                            {{ form.description }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-light fw-medium">Certificate Document File (PDF, PNG, JPG, JPEG) <span class="text-danger">*</span></label>
+                            {{ form.certificate_file }}
+                            <div class="form-text text-muted">Maximum file size: 10MB. Stored directly in AWS Cloud S3 Storage.</div>
+                            {% if form.certificate_file.errors %}<div class="text-danger small mt-1">{{ form.certificate_file.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top border-secondary d-flex justify-content-end gap-2">
+                        <a href="{% url 'certificate_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-gold px-4">
+                            <i class="bi bi-shield-check me-1"></i> Issue Certificate & Generate QR
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Certificate | CertifyCloud{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card card-custom p-4 p-md-5 text-center">
+                <div class="fs-1 text-warning mb-3">
+                    <i class="bi bi-qr-code-scan"></i>
+                </div>
+                <h2 class="text-warning fw-bold mb-2">Public Certificate Verification</h2>
+                <p class="text-muted mb-4">No login required. Enter the unique Certificate ID to verify its authenticity instantly.</p>
+
+                <form method="post" action="{% url 'verify_public' %}">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label text-light fw-medium d-block text-start">Certificate ID</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-warning">
+                                <i class="bi bi-ticket-perforated"></i>
+                            </span>
+                            <input type="text" name="certificate_id" class="form-control form-control-custom text-uppercase" placeholder="e.g. CERT-2026-00001" required autocomplete="off">
+                        </div>
+                        <div class="form-text text-start text-muted">Example format: CERT-2026-00001</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold w-100 py-2 fs-6">
+                        <i class="bi bi-search me-2"></i> Verify Certificate Now
+                    </button>
+                </form>
+
+                <div class="mt-4 pt-4 border-top border-secondary text-start small text-muted">
+                    <p class="mb-1 text-warning"><i class="bi bi-info-circle me-1"></i> <strong>QR Code Verification:</strong></p>
+                    <p class="mb-0">If you hold a printed certificate with a QR code, scan it using any mobile camera or QR reader to be automatically directed to the verification result page.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
